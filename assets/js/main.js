@@ -34,24 +34,43 @@ function initStickyHeader() {
 }
 
 /* --------------------------------------------------------------------------
-   2. Mobile Navigation Toggle & Accessibility
+   2. Mobile Navigation Toggle, Backdrop & Accessibility
    -------------------------------------------------------------------------- */
 function initMobileNav() {
   const toggleBtn = document.querySelector('.mobile-nav-toggle');
   const navMenu = document.querySelector('.nav-menu');
   if (!toggleBtn || !navMenu) return;
 
-  toggleBtn.addEventListener('click', () => {
-    const isExpanded = toggleBtn.getAttribute('aria-expanded') === 'true';
-    toggleBtn.setAttribute('aria-expanded', !isExpanded);
-    navMenu.classList.toggle('open');
+  // Ensure a backdrop element exists for outside clicks
+  let backdrop = document.querySelector('.nav-backdrop');
+  if (!backdrop) {
+    backdrop = document.createElement('div');
+    backdrop.className = 'nav-backdrop';
+    document.body.appendChild(backdrop);
+  }
+
+  const setNavState = (isOpen) => {
+    toggleBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    toggleBtn.classList.toggle('active', isOpen);
+    navMenu.classList.toggle('open', isOpen);
+    backdrop.classList.toggle('active', isOpen);
+    document.body.classList.toggle('nav-locked', isOpen);
+  };
+
+  toggleBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const isCurrentlyOpen = navMenu.classList.contains('open');
+    setNavState(!isCurrentlyOpen);
+  });
+
+  backdrop.addEventListener('click', () => {
+    setNavState(false);
   });
 
   // Close when clicking outside or pressing ESC
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && navMenu.classList.contains('open')) {
-      navMenu.classList.remove('open');
-      toggleBtn.setAttribute('aria-expanded', 'false');
+      setNavState(false);
       toggleBtn.focus();
     }
   });
@@ -59,10 +78,16 @@ function initMobileNav() {
   // Close when clicking a nav link
   navMenu.querySelectorAll('.nav-link').forEach(link => {
     link.addEventListener('click', () => {
-      navMenu.classList.remove('open');
-      toggleBtn.setAttribute('aria-expanded', 'false');
+      setNavState(false);
     });
   });
+
+  // Reset if resized to desktop breakpoint
+  window.addEventListener('resize', () => {
+    if (window.innerWidth > 768 && navMenu.classList.contains('open')) {
+      setNavState(false);
+    }
+  }, { passive: true });
 }
 
 /* --------------------------------------------------------------------------
