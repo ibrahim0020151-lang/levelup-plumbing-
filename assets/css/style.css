@@ -499,6 +499,13 @@ p:last-child {
   height: 100%;
 }
 
+/* Mobile Nav Drawer Specific Components - Hidden on Desktop */
+.mobile-nav-header,
+.mobile-nav-services,
+.mobile-nav-contact {
+  display: none;
+}
+
 /* --------------------------------------------------------------------------
    7. Hero Section
    -------------------------------------------------------------------------- */
@@ -1030,6 +1037,12 @@ p:last-child {
 .score-details span {
   font-size: 0.85rem;
   color: #94A3B8;
+}
+
+.reviews-summary-actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
 }
 
 .reviews-grid {
@@ -1743,31 +1756,47 @@ body.nav-locked {
   bottom: 0;
   left: 0;
   right: 0;
-  z-index: 9999;
-  background-color: rgba(16, 36, 58, 0.96);
+  z-index: 990;
+  background-color: rgba(16, 36, 58, 0.97);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  padding: 0.75rem 1rem;
-  padding-bottom: max(0.75rem, env(safe-area-inset-bottom, 0.75rem));
-  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.25);
+  padding: 0.5rem 0.75rem;
+  padding-bottom: max(0.5rem, env(safe-area-inset-bottom, 0.5rem));
+  box-shadow: 0 -4px 18px rgba(0, 0, 0, 0.22);
   border-top: 1px solid rgba(255, 255, 255, 0.12);
   transform: translateZ(0);
+  transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+.mobile-sticky-bar.hidden-by-keyboard {
+  transform: translateY(115%);
+  opacity: 0;
+  pointer-events: none;
 }
 
 .mobile-sticky-inner {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0.75rem;
-  max-width: 500px;
+  gap: 0.5rem;
+  max-width: 440px;
   margin: 0 auto;
 }
 
 .mobile-sticky-inner .btn {
-  padding: 0.85rem 0.5rem;
-  font-size: 0.9rem;
+  padding: 0.55rem 0.5rem;
+  font-size: 0.85rem;
   font-weight: 700;
-  min-height: 48px;
+  min-height: 42px;
   width: 100%;
+  border-radius: var(--radius-md);
+  gap: 0.4rem;
+  white-space: nowrap;
+}
+
+.mobile-sticky-inner .btn svg {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
 }
 
 /* --------------------------------------------------------------------------
@@ -1851,8 +1880,12 @@ body.nav-locked {
 }
 
 @media (max-width: 768px) {
+  :root {
+    --header-height: 64px; /* Clean compact mobile header row */
+  }
+
   body {
-    padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px)); /* Safe spacing for mobile sticky bar */
+    padding-bottom: calc(58px + env(safe-area-inset-bottom, 0px)); /* Safe space for slim sticky bar */
   }
 
   .mobile-sticky-bar {
@@ -1863,6 +1896,35 @@ body.nav-locked {
     display: none;
   }
 
+  .main-header {
+    height: var(--header-height);
+  }
+
+  .header-inner {
+    height: var(--header-height);
+    gap: 0.75rem;
+  }
+
+  .brand-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-sm);
+  }
+
+  .brand-icon svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .brand-title {
+    font-size: 1.15rem;
+  }
+
+  .brand-subtitle {
+    font-size: 0.58rem;
+    letter-spacing: 0.08em;
+  }
+
   .header-actions .btn, .header-phone-box {
     display: none;
   }
@@ -1871,15 +1933,19 @@ body.nav-locked {
     display: flex;
     align-items: center;
     justify-content: center;
-    min-width: 48px;
-    min-height: 48px;
-    padding: 10px;
+    min-width: 44px;
+    min-height: 44px;
+    width: 44px;
+    height: 44px;
+    padding: 8px;
     background-color: var(--color-bg-light);
     border-radius: var(--radius-md);
     cursor: pointer;
     border: 1px solid var(--color-border);
+    color: var(--color-primary-navy);
   }
 
+  /* Structured Mobile Navigation Panel */
   .nav-menu {
     position: fixed;
     top: var(--header-height);
@@ -1888,14 +1954,14 @@ body.nav-locked {
     background-color: #FFFFFF;
     border-bottom: 2px solid var(--color-border);
     flex-direction: column;
-    padding: 1.25rem 1rem;
-    gap: 0.5rem;
-    box-shadow: var(--shadow-xl);
+    padding: 1rem 1.25rem 1.5rem 1.25rem;
+    gap: 0.25rem;
+    box-shadow: 0 16px 36px rgba(16, 36, 58, 0.18);
     transform: translateY(-120%);
     opacity: 0;
     pointer-events: none;
-    transition: transform var(--transition-normal), opacity var(--transition-normal);
-    max-height: calc(100vh - var(--header-height));
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
+    max-height: calc(100vh - var(--header-height) - 50px);
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     z-index: 1001;
@@ -1907,26 +1973,196 @@ body.nav-locked {
     pointer-events: auto;
   }
 
-  .nav-link {
-    width: 100%;
-    padding: 0.85rem 1rem;
-    font-size: 1.05rem;
-    min-height: 48px;
+  .mobile-nav-header {
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    padding-bottom: 0.65rem;
+    margin-bottom: 0.5rem;
+    border-bottom: 1px solid var(--color-border);
+    width: 100%;
+  }
+
+  .mobile-nav-heading {
+    font-size: 0.8rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-text-muted);
+  }
+
+  .mobile-nav-close {
+    background: none;
+    border: none;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    line-height: 1;
+    color: var(--color-text-body);
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+  }
+
+  .nav-link {
+    width: 100%;
+    padding: 0.75rem 0.85rem;
+    font-size: 1rem;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    border-radius: var(--radius-md);
+    color: var(--color-primary-navy);
+  }
+
+  .nav-link.active {
+    background-color: var(--color-blue-light);
+    color: var(--color-accent-blue);
+    font-weight: 700;
+  }
+
+  .mobile-nav-services {
+    display: block;
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--color-border);
+    width: 100%;
+  }
+
+  .mobile-nav-services-label {
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-text-muted);
+    margin-bottom: 0.6rem;
+  }
+
+  .mobile-services-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+  }
+
+  .mobile-service-chip {
+    padding: 0.5rem 0.6rem;
+    background-color: var(--color-bg-subtle);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--color-primary-navy);
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-decoration: none;
+    transition: all var(--transition-fast);
+  }
+
+  .mobile-service-chip:hover, .mobile-service-chip:active {
+    background-color: var(--color-blue-light);
+    border-color: #BFDBFE;
+    color: var(--color-accent-blue);
+  }
+
+  .mobile-nav-contact {
+    display: block;
+    margin-top: 0.85rem;
+    padding: 0.85rem 1rem;
+    background-color: var(--color-bg-light);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border);
+    width: 100%;
+  }
+
+  .mobile-nav-contact-phone {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--color-primary-navy);
+    margin-bottom: 0.6rem;
+    text-decoration: none;
+  }
+
+  .mobile-nav-contact-phone svg {
+    color: var(--color-accent-blue);
+  }
+
+  .mobile-nav-contact-cta {
+    width: 100%;
+    justify-content: center;
+    min-height: 42px;
+  }
+
+  /* Hero Adjustments on Mobile */
+  .hero-section {
+    padding-top: 1.75rem;
+    padding-bottom: 2.5rem;
+  }
+
+  .hero-headline {
+    font-size: clamp(1.75rem, 6vw, 2.35rem);
+    line-height: 1.22;
+    margin-bottom: 0.85rem;
+  }
+
+  .hero-subheadline {
+    font-size: 0.975rem;
+    line-height: 1.55;
+    margin-bottom: 1.35rem;
+  }
+
+  .hero-image-card {
+    border-radius: var(--radius-lg);
   }
 
   .hero-image-card img {
-    height: clamp(280px, 50vw, 400px);
+    height: clamp(240px, 56vw, 360px);
+    object-position: center 20%; /* Preserves plumber face & fixture installation */
+    width: 100%;
   }
 
   .hero-floating-card {
     display: none;
   }
 
+  /* Navy Credentials Trust Ribbon */
+  .credentials-bar {
+    padding: 1.25rem 0;
+  }
+
   .credentials-grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+
+  .credential-item {
+    padding: 0.75rem 0.85rem;
+    gap: 0.75rem;
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: var(--radius-md);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .credential-icon {
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+  }
+
+  .credential-title {
+    font-size: 0.875rem;
+    line-height: 1.25;
+  }
+
+  .credential-desc {
+    font-size: 0.75rem;
+    line-height: 1.35;
   }
 
   .values-grid, .process-grid, .reviews-grid {
@@ -1946,7 +2182,7 @@ body.nav-locked {
 
   .footer-top-grid {
     grid-template-columns: 1fr;
-    gap: 2.5rem;
+    gap: 2.25rem;
   }
 
   .footer-bottom {
@@ -1967,34 +2203,46 @@ body.nav-locked {
   }
 
   .section-py {
-    padding-top: 3rem;
-    padding-bottom: 3rem;
+    padding-top: 2.75rem;
+    padding-bottom: 2.75rem;
   }
 
   .hero-section {
-    padding-top: 2rem;
-    padding-bottom: 3rem;
+    padding-top: 1.5rem;
+    padding-bottom: 2.5rem;
+  }
+
+  .hero-pill {
+    font-size: 0.8rem;
+    padding: 0.3rem 0.75rem;
+    margin-bottom: 0.85rem;
   }
 
   .hero-ctas {
     flex-direction: column;
     align-items: stretch;
     width: 100%;
-    gap: 0.75rem;
-    margin-bottom: 1.75rem;
+    gap: 0.65rem;
+    margin-bottom: 1.5rem;
   }
 
   .hero-ctas .btn {
     width: 100%;
     justify-content: center;
-    min-height: 48px;
+    min-height: 46px;
+    font-size: 0.95rem;
   }
 
   .trust-strip {
     flex-direction: column;
     align-items: flex-start;
-    gap: 1rem;
+    gap: 0.85rem;
     padding-top: 1.25rem;
+  }
+
+  .credentials-grid {
+    grid-template-columns: 1fr;
+    gap: 0.65rem;
   }
 
   .zip-checker-form {
@@ -2005,7 +2253,20 @@ body.nav-locked {
   .zip-checker-form .btn {
     width: 100%;
     justify-content: center;
-    min-height: 48px;
+    min-height: 46px;
+  }
+
+  .estimator-card {
+    padding: 1.25rem 1rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .estimator-summary-panel {
+    padding: 1.25rem 1rem;
+  }
+
+  .estimate-range {
+    font-size: 1.95rem;
   }
 
   .service-card-body {
@@ -2015,7 +2276,7 @@ body.nav-locked {
   .service-card-meta {
     flex-direction: column;
     align-items: stretch;
-    gap: 0.85rem;
+    gap: 0.75rem;
   }
 
   .service-card-meta .btn {
@@ -2024,49 +2285,76 @@ body.nav-locked {
     min-height: 44px;
   }
 
-  .score-huge {
-    font-size: 2.75rem;
-  }
-
   .score-display {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.25rem;
   }
 
-  .subpage-hero {
-    padding-top: 2.5rem;
-    padding-bottom: 2.5rem;
+  .reviews-summary-actions {
+    flex-direction: column;
+    width: 100%;
+    gap: 0.65rem;
   }
 
-  .contact-info-card, .service-form-card, .estimator-summary-panel {
-    padding: 1.5rem 1.25rem;
+  .reviews-summary-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* FAQ Mobile Presentation */
+  .faq-button {
+    padding: 1rem 1rem;
+    font-size: 0.95rem;
+    gap: 0.65rem;
+  }
+
+  .faq-panel {
+    padding: 0 1rem 1rem 1rem;
+    font-size: 0.875rem;
+  }
+
+  .subpage-hero {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+  }
+
+  .contact-info-card, .service-form-card {
+    padding: 1.5rem 1.15rem;
+  }
+
+  .mobile-services-grid {
+    grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 360px) {
   .brand-title {
-    font-size: 1.15rem;
+    font-size: 1.05rem;
   }
 
   .brand-icon {
-    width: 38px;
-    height: 38px;
+    width: 34px;
+    height: 34px;
   }
 
   .btn {
-    padding: 0.75rem 0.85rem;
-    font-size: 0.875rem;
+    padding: 0.65rem 0.75rem;
+    font-size: 0.85rem;
   }
 
   .hero-pill {
-    font-size: 0.75rem;
-    padding: 0.35rem 0.65rem;
+    font-size: 0.725rem;
+    padding: 0.25rem 0.55rem;
   }
 
   .section-tag {
-    font-size: 0.75rem;
-    padding: 0.3rem 0.7rem;
+    font-size: 0.725rem;
+    padding: 0.25rem 0.6rem;
+  }
+
+  .estimate-range {
+    font-size: 1.7rem;
   }
 }
 

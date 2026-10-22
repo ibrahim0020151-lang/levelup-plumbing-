@@ -34,19 +34,67 @@ function initStickyHeader() {
 }
 
 /* --------------------------------------------------------------------------
-   2. Mobile Navigation Toggle, Backdrop & Accessibility
+   2. Mobile Navigation Toggle, Structured Panel & Accessibility
    -------------------------------------------------------------------------- */
 function initMobileNav() {
   const toggleBtn = document.querySelector('.mobile-nav-toggle');
   const navMenu = document.querySelector('.nav-menu');
   if (!toggleBtn || !navMenu) return;
 
-  // Ensure a backdrop element exists for outside clicks
+  // Build backdrop if not present
   let backdrop = document.querySelector('.nav-backdrop');
   if (!backdrop) {
     backdrop = document.createElement('div');
     backdrop.className = 'nav-backdrop';
     document.body.appendChild(backdrop);
+  }
+
+  // Populate structured mobile drawer elements once if not already present
+  if (!navMenu.querySelector('.mobile-nav-header')) {
+    // 1. Mobile Header with Title and Close Button
+    const mobileHeader = document.createElement('div');
+    mobileHeader.className = 'mobile-nav-header';
+    mobileHeader.innerHTML = `
+      <span class="mobile-nav-heading">Navigation Menu</span>
+      <button type="button" class="mobile-nav-close" aria-label="Close Navigation Menu">&times;</button>
+    `;
+    navMenu.prepend(mobileHeader);
+
+    const closeBtn = mobileHeader.querySelector('.mobile-nav-close');
+    if (closeBtn) {
+      closeBtn.addEventListener('click', () => setNavState(false));
+    }
+
+    // 2. Services quick chips section
+    const isSubfolder = window.location.pathname.includes('/services/');
+    const basePath = isSubfolder ? '' : 'services/';
+    const servicesSection = document.createElement('div');
+    servicesSection.className = 'mobile-nav-services';
+    servicesSection.innerHTML = `
+      <div class="mobile-nav-services-label">Quick Service Links</div>
+      <div class="mobile-services-grid">
+        <a href="${basePath}faucet-sink-installation.html" class="mobile-service-chip">Faucets & Sinks</a>
+        <a href="${basePath}water-heater-services.html" class="mobile-service-chip">Water Heaters</a>
+        <a href="${basePath}water-pressure-prv.html" class="mobile-service-chip">Pressure PRVs</a>
+        <a href="${basePath}drain-overflow-replacement.html" class="mobile-service-chip">Drain & Overflow</a>
+        <a href="${basePath}pipe-repair-inspection.html" class="mobile-service-chip">Pipe Diagnostics</a>
+      </div>
+    `;
+    navMenu.appendChild(servicesSection);
+
+    // 3. Contact information & quick dispatch card
+    const contactPath = isSubfolder ? '../contact.html' : 'contact.html';
+    const contactSection = document.createElement('div');
+    contactSection.className = 'mobile-nav-contact';
+    contactSection.innerHTML = `
+      <div style="font-size:0.75rem;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-muted);margin-bottom:0.4rem;">Direct Dallas Dispatch</div>
+      <a href="tel:+19713127910" class="mobile-nav-contact-phone">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        (971) 312-7910
+      </a>
+      <a href="${contactPath}" class="btn btn-primary btn-sm mobile-nav-contact-cta">Request Appointment</a>
+    `;
+    navMenu.appendChild(contactSection);
   }
 
   const setNavState = (isOpen) => {
@@ -67,7 +115,7 @@ function initMobileNav() {
     setNavState(false);
   });
 
-  // Close when clicking outside or pressing ESC
+  // Close when pressing ESC
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && navMenu.classList.contains('open')) {
       setNavState(false);
@@ -75,8 +123,8 @@ function initMobileNav() {
     }
   });
 
-  // Close when clicking a nav link
-  navMenu.querySelectorAll('.nav-link').forEach(link => {
+  // Close when clicking any nav link inside the drawer
+  navMenu.querySelectorAll('a').forEach(link => {
     link.addEventListener('click', () => {
       setNavState(false);
     });
@@ -88,6 +136,29 @@ function initMobileNav() {
       setNavState(false);
     }
   }, { passive: true });
+
+  // Intelligent Mobile Sticky Bar: hide when typing in forms so keyboard is unobstructed
+  initStickyBarKeyboardHandler();
+}
+
+/**
+ * Automatically hides sticky bottom bar when virtual keyboard is active on mobile
+ */
+function initStickyBarKeyboardHandler() {
+  const stickyBar = document.querySelector('.mobile-sticky-bar');
+  if (!stickyBar) return;
+
+  const formInputs = document.querySelectorAll('input, textarea, select');
+  formInputs.forEach(input => {
+    input.addEventListener('focus', () => {
+      if (window.innerWidth <= 768) {
+        stickyBar.classList.add('hidden-by-keyboard');
+      }
+    });
+    input.addEventListener('blur', () => {
+      stickyBar.classList.remove('hidden-by-keyboard');
+    });
+  });
 }
 
 /* --------------------------------------------------------------------------
@@ -224,6 +295,29 @@ function initEstimator() {
       }
     }
   });
+
+  // Connect "Request Service with This Estimate" CTA button to pre-select form option
+  const applyBtn = document.getElementById('btn-apply-estimate');
+  if (applyBtn) {
+    applyBtn.addEventListener('click', () => {
+      const formServiceSelect = document.getElementById('form-serviceType');
+      if (formServiceSelect && issueSelect) {
+        const mapping = {
+          'faucet': 'Faucet Installation or Repair',
+          'toilet': 'Toilet Repair or Installation',
+          'prv': 'Water Pressure / PRV Valve',
+          'drain-overflow': 'Bathtub Drain & Overflow',
+          'water-heater-repair': 'Water Heater Service (Tank/Tankless)',
+          'water-heater-install': 'Water Heater Service (Tank/Tankless)',
+          'inspection': 'Comprehensive Plumbing Inspection'
+        };
+        const targetVal = mapping[issueSelect.value];
+        if (targetVal) {
+          formServiceSelect.value = targetVal;
+        }
+      }
+    });
+  }
 
   updatePrice();
 }
